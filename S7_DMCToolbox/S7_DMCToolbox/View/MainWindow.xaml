@@ -84,6 +84,7 @@
                                 </Button>
                                 <Button DockPanel.Dock="Right" Content="AlarmWorx" Command="{Binding GetAlarmWorxInfoCmd}" Width="75" Margin="5" />
                                 <Button DockPanel.Dock="Right" Content="Kepware" Command="{Binding ExportKepwareCmd}" Width="75" Margin="5" />
+                                <Button DockPanel.Dock="Right" Content="Kepware (All Blocks)" Command="{Binding ExportKepwareAllBlocksCmd}" Width="75" Margin="5" />
                                 <Button DockPanel.Dock="Right" Content="Trending" Command="{Binding SetupTrendingCmd}" Width="75" Margin="5" />
 
                                 <Viewbox Height="35" Width="35" >

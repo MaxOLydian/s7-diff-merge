@@ -447,6 +447,14 @@ namespace S7_DMCToolbox
             }
         }
 
+        public ICommand ExportKepwareAllBlocksCmd
+        {
+            get
+            {
+                return new RelayCommand(p => ExportKepwareAllBlocks(), z => !S7Model.IsBusy);
+            }
+        }
+
         public ICommand ExportWinCCFlexDigitalAlarmsCmd
         {
             get
@@ -556,6 +564,29 @@ namespace S7_DMCToolbox
                 S7Model.ExportKepware();
             }
             
+        }
+
+        private void ExportKepwareAllBlocks()
+        {
+            VistaSaveFileDialog selectFileDialog = new VistaSaveFileDialog();
+
+            selectFileDialog.Title = "Select Export Location";
+            selectFileDialog.AddExtension = true;
+            selectFileDialog.DefaultExt = ".csv";
+            selectFileDialog.Filter = "CSV File|*.csv";
+            if (Directory.Exists(S7Model.KepwareExportFilePath))
+                selectFileDialog.InitialDirectory = Properties.Settings.Default.KepwareExportFilePath;
+
+            if ((bool)selectFileDialog.ShowDialog())// == DialogResult.OK)
+            {
+                
+                S7Model.KepwareExportFilePath = selectFileDialog.FileName;
+                Properties.Settings.Default.KepwareExportFilePath = selectFileDialog.FileName;
+                Properties.Settings.Default.Save();
+                //S7Model.ExportKepware(); //place code here for exporting all blocks instead of selected block.
+                S7Model.ExportKepwareAllBlocks();
+            }
+
         }
 
         private void GetAlarmWorxInfo()
