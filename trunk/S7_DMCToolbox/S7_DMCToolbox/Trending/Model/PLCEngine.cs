@@ -154,7 +154,6 @@ namespace Trending
                     case DATA_TYPES.TYPE_INT:
                         return PLCConnection.getS16().ToString();
                         break;
-
                 }
             }
             throw new Exception("Unable to read data block DB " + Tag.DbNumber + ".");

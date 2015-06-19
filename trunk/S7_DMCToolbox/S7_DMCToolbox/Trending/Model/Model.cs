@@ -10,13 +10,10 @@ namespace Trending
     {
         public event EventHandler<ParameterEventArgs> ParameterChangedEvent;
         public event EventHandler<ParameterEventArgs> LocalParameterChangedEvent;
+        
 
         public abstract void UpdateReadings();
-        public abstract void RefreshParameters();
-        public abstract void RequestLog(int channel);
-        public abstract void RequestLogAll();
-        public abstract void LoadLogFiles();
-
+        
         public TagData ReadLogFile(FileInfo file)
         {
             var channeldata = new TagData();
@@ -107,8 +104,8 @@ namespace Trending
                 
                 _connectedDevice.ParameterChangedEvent += _connectedDevice_ParameterChangedEvent;
                 _connectedDevice.LocalParameterChangedEvent += _connectedDevice_LocalParameterChangedEvent;
-                RefreshParameters();
-                ConnectedDevice.LoadLogFiles();
+                //RefreshParameters();
+                //ConnectedDevice.LoadLogFiles();
                 _runUpdate = true;
                 _updateReadingThread = new Thread(UpdateReadingProc) {IsBackground = true};
                 _updateReadingThread.Start();
@@ -158,10 +155,6 @@ namespace Trending
         }
 
 
-        public void RefreshParameters()
-        {
-            ConnectedDevice.RefreshParameters();
-        }
 
         public void LoadParameterFromSettings(BaseParameter parm, int channel)
         {
@@ -248,7 +241,7 @@ namespace Trending
 
         public void RequestLog(int channel)
         {
-            ConnectedDevice.RequestLog(channel);
+         //   ConnectedDevice.RequestLog(channel);
         }
 
         public void ThreadSafeSend(string message)

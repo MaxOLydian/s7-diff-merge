@@ -180,6 +180,7 @@ namespace S7_DMCToolbox
                 NotifyPropertyChanged("ProgressBarMax");
             }
         }
+
         #endregion
 
         #region Model Initialization and Unloading
@@ -380,8 +381,8 @@ namespace S7_DMCToolbox
                     NewTag.BitOffset = int.Parse(LastNumberInString.Match(sym.Operand).Value);
                     NewTag.ByteOffset = int.Parse(LastNumberInString.Match(sym.Operand.Split('.')[0]).Value);
                 }
-
-                SymbolTable.Add(sym.Symbol, NewTag);
+                if (!SymbolTable.ContainsKey(sym.Symbol))
+                    SymbolTable.Add(sym.Symbol, NewTag);
             }
 
             return SymbolTable;
@@ -684,6 +685,56 @@ namespace S7_DMCToolbox
             DoJob(new ThreadStart(ExportKepwareAsync));
         }
 
+        internal void ExportKepwareAllBlocks()
+        {
+            DoJob(new ThreadStart(ExportKepwareAllBlocksAsync));
+        }
+
+        internal void ExportKepwareAllBlocksAsync()
+        {
+
+            //this function is where the actual code is to export 1 block. Need to replace with exporting all global blocks to one CSV.
+          ExportTable.KepwareExportTableDataTable exportTable = new ExportTable.KepwareExportTableDataTable(); //this is a table that holds every data block.
+          foreach(KeyValuePair<string,Block> db in AllBlocks) //so this is not looking for everything with "db" in it, but it's making a new array of blocks from a
+              //all it is doing is indexing a collection. in this case AllBlocks is a collection of KeyValuePairs. So it is not filtering anything by DB or FB or FC or anything. I ti is just indexing AllB
+              //indexing AllBlcoks and putting the contents one at a time into the variable "db"
+           {
+                if (!(db.Value.Name.ToLower().StartsWith("db"))) //check to make sure a data block is selected
+                    //Then here, we are checking the block to see if its ia DB or FB or FC. ok  If tit's not a DB, go to the next block. Sorry it's hard to type over remote haha ok and that's why you changed return to the continue. yes.
+                {
+                    continue; //this will skip the block in the for loop if it is not a datablock
+                }
+            
+           
+                S7DataBlock blk = (S7DataBlock)db.Value.BlockContents; //grab block contents
+                ExportTable.KepwareExportTableDataTable singleBlockTable = new ExportTable.KepwareExportTableDataTable(); //create new CSV table
+
+                AddChildrenToKepwareExportTable(singleBlockTable, blk.Structure.Children, db.Value.SymbolicName, db.Value); //get addresses for all items in data block
+
+                foreach (ExportTable.KepwareExportTableRow row in singleBlockTable.Rows) //add every row from this data block to our global table
+                {
+                    exportTable.Rows.Add(row.ItemArray);//.AddKepwareExportTableRow(row);
+                }
+            }
+          AddSymbolsToKepwareExportTable(exportTable);
+          CreateKepwareCSVFromDataTable(exportTable); //Export to CSV file  from our global table
+
+            //so it kinda looks like you could loop through all the blocks and add them all to exportTable, and then call the CreateKepwareCSVFromDataTable.
+            //I set up the basics so you now have a new button on the application that will link to whatever you put in this function.
+
+            //This code is just to create aa "list" of recently exported blocks for easier use next time. Is not relevent to our task of exporting all blocks:
+            //if (!Properties.Settings.Default.RecentlyUsedBlocks.Contains(CurrentBlock.Key))
+            //{
+            //    Properties.Settings.Default.RecentlyUsedBlocks.Insert(0, CurrentBlock.Key);
+            //    while (Properties.Settings.Default.RecentlyUsedBlocks.Count > 150)
+            //    {
+            //        Properties.Settings.Default.RecentlyUsedBlocks.RemoveAt(150);
+            //    }
+            //    Properties.Settings.Default.Save();
+            //}
+
+        }
+
         internal void ExportKepwareAsync()
         {
             if (!(CurrentBlock.Value.Name.ToLower().StartsWith("db")))
@@ -861,6 +912,49 @@ namespace S7_DMCToolbox
             }
         }
 
+        private void AddSymbolsToKepwareExportTable(ExportTable.KepwareExportTableDataTable exportTable)
+        {
+            foreach (KeyValuePair<String, Tag> child in Symbols)
+            {
+                if (!child.Value.Address.StartsWith("M"))
+                    continue;
+
+                ExportTable.KepwareExportTableRow newRow = exportTable.NewKepwareExportTableRow();
+                newRow.Respect_Data_Type = "1";
+                newRow.Client_Access = "R/W";
+                newRow.Scan_Rate = "100";
+                newRow.Address = child.Value.Address;
+                newRow.Tag_Name = child.Key;
+                newRow.Description = child.Value.Name;
+                //newRow.Tag_Name = ParentPath + "." + child.Name;
+                //newRow.Description = child.Comment;
+                //int BitAddress = child.BlockAddress.BitAddress;
+                //int ByteAddress = child.BlockAddress.ByteAddress + ByteAdder;
+
+                switch (child.Value.Address.Substring(0, 2).ToUpper())
+                {
+                    case "M ":
+                        newRow.Data_Type = "Boolean";
+                        exportTable.AddKepwareExportTableRow(newRow);
+                        break;
+                    case "MB":
+                        newRow.Data_Type = "Byte";
+                        exportTable.AddKepwareExportTableRow(newRow);
+                        break;
+                    case "MD":
+                        newRow.Data_Type = "FLOAT";
+                        exportTable.AddKepwareExportTableRow(newRow);
+                        break;
+                    case "MW":
+                        newRow.Data_Type = "Short";
+                        exportTable.AddKepwareExportTableRow(newRow);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            
+        }
         internal void ExportAlarmWorx()
         {
             if (!Properties.Settings.Default.RecentOPCServers.Contains(SelectedOPCServer))

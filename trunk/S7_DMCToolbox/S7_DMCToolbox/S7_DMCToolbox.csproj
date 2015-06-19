@@ -36,7 +36,7 @@
     <WebPage>download.htm</WebPage>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
     <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>1.4.5.0</ApplicationVersion>
+    <ApplicationVersion>1.5.6.0</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -74,17 +74,26 @@
     <GenerateManifests>true</GenerateManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <SignManifests>true</SignManifests>
+    <SignManifests>false</SignManifests>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Direct2D">
+      <HintPath>.\Direct2D.dll</HintPath>
+    </Reference>
     <Reference Include="Ionic.Zip">
       <HintPath>.\Ionic.Zip.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Expression.Interactions">
       <HintPath>..\packages\System.Windows.Interactivity.WPF.2.0.20525\lib\net40\Microsoft.Expression.Interactions.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.WindowsAPICodePack.DirectX">
+      <HintPath>.\Microsoft.WindowsAPICodePack.DirectX.dll</HintPath>
+    </Reference>
     <Reference Include="Ookii.Dialogs.Wpf">
       <HintPath>.\Ookii.Dialogs.Wpf.dll</HintPath>
+    </Reference>
+    <Reference Include="Righthand.RealtimeGraph">
+      <HintPath>.\Righthand.RealtimeGraph.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -142,6 +151,7 @@
     <Compile Include="Trending\Model\Parameters.cs" />
     <Compile Include="Trending\Model\PLCEngine.cs" />
     <Compile Include="Trending\Model\PLCState.cs" />
+    <Compile Include="Trending\Model\RealtimeGraphItem.cs" />
     <Compile Include="Trending\ParameterEnums.cs" />
     <Compile Include="Trending\Profinet\ProfinetModel.cs" />
     <Compile Include="Trending\Profinet\ProfinetViewModel.cs" />
@@ -153,6 +163,9 @@
     <Compile Include="View\ScrollSynchronizer.cs" />
     <Compile Include="View\TrendSelector.xaml.cs">
       <DependentUpon>TrendSelector.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\TrendViewer.xaml.cs">
+      <DependentUpon>TrendViewer.xaml</DependentUpon>
     </Compile>
     <Page Include="..\..\DMC_Library\ProgressWheel.xaml">
       <Link>DMC Library\ProgressWheel.xaml</Link>
@@ -187,6 +200,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="View\TrendSelector.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\TrendViewer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

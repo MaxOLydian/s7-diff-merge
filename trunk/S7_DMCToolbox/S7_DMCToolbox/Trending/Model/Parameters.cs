@@ -7,6 +7,7 @@ using System.Text;
 using System.IO;
 using System.Windows;
 using System.Text.RegularExpressions;
+using S7_DMCToolbox;
 
 namespace Trending
 {
@@ -18,6 +19,13 @@ namespace Trending
             this.Parameter = parm;
         }
     }
+    public class NewDataEventArgs : EventArgs
+    {
+        public DateTime TimeStamp { get; set; }
+        public String NewData { get; set; }
+        public Tag TagInfo { get; set; }
+    }
+
     public class Parameters : EnumSources
     {
         //Tag number
