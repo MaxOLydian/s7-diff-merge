@@ -707,6 +707,10 @@ namespace S7_DMCToolbox
             
            
                 S7DataBlock blk = (S7DataBlock)db.Value.BlockContents; //grab block contents
+                if (blk.IsInstanceDB)
+                {
+                    continue;
+                }
                 ExportTable.KepwareExportTableDataTable singleBlockTable = new ExportTable.KepwareExportTableDataTable(); //create new CSV table
 
                 AddChildrenToKepwareExportTable(singleBlockTable, blk.Structure.Children, db.Value.SymbolicName, db.Value); //get addresses for all items in data block
@@ -833,6 +837,11 @@ namespace S7_DMCToolbox
                             exportTable.AddKepwareExportTableRow(newRow);
 
                             break;
+                        
+                        case S7DataRowType.FB:
+                        case S7DataRowType.BLOCK_FB:
+                            AddChildrenToKepwareExportTable(exportTable, child.Children, newRow.Tag_Name, blk, ByteAdder);
+                            break;
                         case S7DataRowType.UDT:
                         case S7DataRowType.STRUCT:
                             AddChildrenToKepwareExportTable(exportTable, child.Children, newRow.Tag_Name, blk, ByteAdder);
@@ -902,6 +911,8 @@ namespace S7_DMCToolbox
 
                                 break;
                             case S7DataRowType.UDT:
+                            case S7DataRowType.FB:
+                            case S7DataRowType.BLOCK_FB:
                             case S7DataRowType.STRUCT:
                                 AddChildrenToKepwareExportTable(exportTable, child.Children, ParentPath + "." + child.Name + "[" + i + "]", blk, (i - child.ArrayStart.First()) * (child.ByteLength / (child.ArrayStop.First() - child.ArrayStart.First() + 1)) + ByteAdder);
                                 break;
@@ -997,7 +1008,7 @@ namespace S7_DMCToolbox
             StringBuilder sb = new StringBuilder();
             sb.AppendLine(@"#AWX_Source;");
             IEnumerable<string> columnNames = exportTable.Columns.Cast<DataColumn>().
-                                              Select(column => column.ColumnName.Replace("_", " "));
+                                              Select(p => p.ColumnName);// => column.ColumnName.Replace("_", " "));
             sb.AppendLine(string.Join(",", columnNames));
 
             foreach (DataRow row in exportTable.Rows)
